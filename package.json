@@ -1,0 +1,32 @@
+{
+  "name": "ledger-agent-payables",
+  "version": "0.0.1",
+  "description": "Ledger-signed policy control plane for AI-agent USDC nanopayments.",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "demo:mock": "node scripts/run-poc.mjs",
+    "demo:arc": "node scripts/run-arc.mjs",
+    "gateway": "node scripts/run-gateway.mjs",
+    "console": "vite console --host 127.0.0.1",
+    "wallet:buyer": "node scripts/generate-buyer-wallet.mjs",
+    "wallet:status": "node scripts/wallet-status.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@circle-fin/x402-batching": "^3.0.4",
+    "@ledgerhq/hw-app-eth": "7.8.5",
+    "@ledgerhq/hw-transport-webhid": "6.35.3",
+    "@x402/core": "2.14.0",
+    "buffer": "6.0.3",
+    "viem": "2.52.2"
+  },
+  "devDependencies": {
+    "vite": "6.4.3",
+    "vite-plugin-node-polyfills": "0.28.0"
+  }
+}
