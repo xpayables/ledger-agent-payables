@@ -55,7 +55,7 @@ verify signed policy
 
 If any control step fails, the gateway blocks the payment before money moves.
 
-The same policy gateway can drive multiple rails. The Arc script proves real gas-free USDC nanopayment settlement on Circle Arc testnet; the mock rail is an offline fallback; the x402 rail shows the same control model on a standard HTTP 402 flow.
+The same policy gateway can run against a local mock rail for offline development and Circle Arc testnet for real gas-free USDC nanopayments.
 
 ## Demo
 
@@ -73,7 +73,7 @@ The demo flow:
 
 ## Quickstart
 
-Implementation is being ported into this clean repository. Once the code is added, the expected local flow is:
+Current local flow:
 
 ```bash
 npm install
@@ -81,36 +81,26 @@ npm test
 npm run demo:mock
 ```
 
-Run a real Arc testnet nanopayment:
+Run the local gateway monitor:
 
 ```bash
-npm run wallet:buyer
-# fund the printed address at https://faucet.circle.com using Arc Testnet USDC
-npm run demo:arc
+npm run server:mock
 ```
 
-Run the policy console:
+Open `http://127.0.0.1:4020/dashboard`.
 
-```bash
-npm run gateway
-npm run console
-```
-
-Open `http://127.0.0.1:5173`.
-
-A Ledger device is optional for local testing; the console also supports a local test key that produces the same EIP-191 signature format.
+The browser policy console and Arc testnet rail are being ported next.
 
 ## Project Layout
 
 ```text
 core/       policy engine, gateway, signer, budget ledger, payment clients
-scripts/    demo runners and wallet utilities
-console/    browser policy console
+scripts/    mock server and scripted demo scenario
 test/       policy, gateway, signing, budget, and exception tests
 ```
 
 ## Status
 
-* Implementation is being moved from the experimental POC workspace into this clean public repository.
-* The mock rail is deterministic and offline. The Arc rail uses public testnet funds only.
+* The mock gateway is deterministic and offline.
+* The Arc rail and browser policy console are being ported next; the Arc rail will use public testnet funds only.
 * This is not production software. It uses demo wallets and in-memory state; do not use with real funds.

@@ -12,6 +12,7 @@ tmp/
 .obsidian/
 .claude/
 .vscode/
+.playwright-cli/
 
 *.mov
 *.mp4
