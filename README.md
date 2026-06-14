@@ -147,7 +147,7 @@ Policy console after an agent run (approved, blocked, held):
 
 <img src="docs/screenshots/01-agent-run.png" width="850" alt="Agent run showing approved, blocked, and held outcomes">
 
-Monitor: statement, exceptions, budget, and live decisions:
+Monitor after the held $0.01 payment is approved on the Ledger: the market exception now shows approved and settled, with the statement, budget, and live decision log:
 
 <img src="docs/screenshots/02-monitor.png" width="850" alt="Monitor with statement, exceptions, budget, and live decisions">
 
