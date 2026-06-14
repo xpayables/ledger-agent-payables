@@ -58,6 +58,8 @@ sequenceDiagram
 
 The same gateway runs on a local mock rail or Circle Arc testnet for real gas-free USDC nanopayments. On the Arc rail the payment is on-chain; the vendor and agent are our own stand-ins (a self-hosted x402 seller and a deterministic agent) so the demo can trigger every policy outcome.
 
+On-chain proof (Arc testnet): the agent wallet's [USDC transfers on Arcscan](https://testnet.arcscan.app/address/0xC542D49a6f7Fb2d319339aE8461d8f356546F5B8?tab=token_transfers) show 20 USDC in from the faucet and 0.5 USDC out to Circle's Gateway Wallet. Nanopayments then draw from that deposit and batch-settle, so they don't each post a transaction.
+
 ## Quickstart
 
 Install and run the test suite:
@@ -102,8 +104,6 @@ Headless checks (optional, no browser): `npm run demo:mock` runs the full flow o
 
 ## Demo
 
-_Screenshot coming soon._
-
 The demo flow:
 
 1. Author a spend policy in the policy console.
@@ -138,3 +138,17 @@ test/       policy, gateway, signing, budget, and exception tests
 * Mainnet rail: real USDC on Arc mainnet.
 * EIP-712 signing: upgrade Ledger signatures from EIP-191 to typed-data for clearer on-device display.
 * Resilience: retry/backoff on Gateway API calls.
+
+## Screenshots
+
+Policy console after an agent run (approved, blocked, held):
+
+<img src="docs/screenshots/01-agent-run.png" width="850" alt="Agent run showing approved, blocked, and held outcomes">
+
+Monitor: statement, exceptions, budget, and live decisions:
+
+<img src="docs/screenshots/02-monitor.png" width="850" alt="Monitor with statement, exceptions, budget, and live decisions">
+
+On-chain USDC transfers on Arc testnet (faucet in, then the deposit into Circle's Gateway):
+
+<img src="docs/screenshots/03-arcscan-transfers.png" width="850" alt="Arcscan USDC token transfers on Arc testnet">
