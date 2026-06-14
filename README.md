@@ -22,15 +22,15 @@ The fix: control moves up a level — a human signs the budget and rules once, a
 
 ## How It Works
 
-The owner signs authority on a Ledger (cold key); the agent spends from a separate hot wallet, bounded by that signed policy. The policy gateway checks every payment before money moves: it settles approved ones through Circle's Gateway, and holds anything over-cap or off-allowlist for a human.
+A human signs spending authority once on a Ledger; the agent's separate hot wallet spends only within that policy, which the gateway enforces on every payment before money moves.
 
 The parties:
 
-- Owner (Ledger) — the human; signs the spending policy and exception approvals on a Ledger device, and never signs individual payments.
-- Agent (hot wallet) — the autonomous spender; makes paid requests and signs each nanopayment from a separate hot wallet, only within the signed policy.
-- Policy gateway — this project: the control plane that checks every request (cap, budget, allowlist, velocity, expiry), reserves budget, holds exceptions, and logs events.
-- Vendor (x402 seller) — the paid service; returns an x402 `402` challenge, then delivers data once paid.
-- Circle Gateway (Arc) — Circle's own product: the settlement layer that verifies the signed authorization and batch-settles USDC on Arc. This is Circle's infrastructure, not the policy gateway above.
+- **Owner (Ledger):** signs the policy and exception approvals on the device; never signs individual payments.
+- **Agent (hot wallet):** makes paid requests and signs each nanopayment, only within the signed policy.
+- **Policy gateway (this project):** checks each request (cap, budget, allowlist, velocity, expiry), reserves budget, holds exceptions, logs events.
+- **Vendor (x402 seller):** returns an x402 `402` challenge, then delivers data once paid.
+- **Circle Gateway (Arc):** Circle's product; verifies the authorization and batch-settles USDC on Arc.
 
 One guarded payment, end to end:
 
@@ -56,7 +56,7 @@ sequenceDiagram
   G-->>A: approved + data
 ```
 
-The same gateway runs on a local mock rail or Circle Arc testnet for real gas-free USDC nanopayments.
+The same gateway runs on a local mock rail or Circle Arc testnet for real gas-free USDC nanopayments. On the Arc rail the payment is on-chain; the vendor and agent are our own stand-ins (a self-hosted x402 seller and a deterministic agent) so the demo can trigger every policy outcome.
 
 ## Quickstart
 
@@ -77,7 +77,7 @@ npm run arc:wallet          # prints the buyer address
 npm run arc:wallet:status   # confirm the USDC balance landed
 ```
 
-2. Start the Arc gateway and the browser console in **two separate terminals**:
+2. Start the Arc gateway and the browser console in two separate terminals:
 
 ```bash
 # terminal 1 — gateway (deposits into Circle's Gateway, then settles nanopayments)
@@ -125,16 +125,16 @@ test/       policy, gateway, signing, budget, and exception tests
 
 ## Status and limitations
 
-* Arc testnet only — public faucet funds, no real money.
+* Arc testnet only, public faucet funds, no real money.
 * Paid services are self-hosted demo sellers (wrapping open-meteo), not third-party vendors.
 * The agent is a deterministic script, not an LLM.
-* In-memory state and demo wallets — not production software.
+* In-memory state and demo wallets, not production software.
 
 ## Roadmap
 
-* Real vendors — pay live x402 services from Circle's agent marketplace, replacing the demo sellers.
-* Persistent state — move the in-memory store to Postgres, with atomic budget reservation in one transaction.
-* EIP-712 signing — upgrade Ledger signatures from EIP-191 to typed-data for clearer on-device display.
-* Mainnet rail — real USDC on Arc mainnet.
-* Resilience — retry/backoff on Gateway API calls.
-* Autonomous agent — swap the deterministic agent for an LLM that buys under the same policy.
+* Real vendors: pay live x402 services from Circle's agent marketplace, replacing the demo sellers.
+* Autonomous agent: swap the deterministic agent for an LLM that buys under the same policy.
+* Persistent state: move the in-memory store to Postgres, with atomic budget reservation in one transaction.
+* Mainnet rail: real USDC on Arc mainnet.
+* EIP-712 signing: upgrade Ledger signatures from EIP-191 to typed-data for clearer on-device display.
+* Resilience: retry/backoff on Gateway API calls.
