@@ -208,7 +208,7 @@ function summarizeDecision(result) {
   if (body.decision === "approved") {
     return {
       text: `Approved ${fmtUsd(body.amountAtomic)} and settled the resource request.`,
-      detail: tx ? `Arc tx ${short(tx, 18)}` : `HTTP ${status}; ${body.reason}`,
+      detail: tx ? `Gateway settlement ${short(tx, 18)}` : `HTTP ${status}; ${body.reason}`,
     };
   }
   if (body.decision === "needs_approval") {
@@ -280,7 +280,7 @@ async function approve(exceptionId, button) {
     if (!response.ok) throw new Error(result.error ?? `HTTP ${response.status}`);
     $("#approve-status").textContent = "approved";
     const tx = result.paidResource?.settlement?.transaction;
-    chat("gateway", "Exception approved and replayed through the payment rail.", tx ? `Arc tx ${short(tx, 18)}` : "");
+    chat("gateway", "Exception approved and replayed through the payment rail.", tx ? `Gateway settlement ${short(tx, 18)}` : "");
   } catch (error) {
     $("#approve-status").textContent = `failed: ${error.message}`;
     button.disabled = false;
@@ -362,7 +362,8 @@ function renderEvents(events) {
   $("#events-table").innerHTML = `
     <tr><th>Time (UTC)</th><th>Vendor</th><th>Resource</th><th>Amount</th><th>Decision</th><th>Reason</th><th>Status</th></tr>
     ${events.map((event) => {
-      const tx = event.txHash ? ` <a target="_blank" href="${ARCSCAN}/tx/${encodeURIComponent(event.txHash)}">tx</a>` : "";
+      const isOnchainHash = /^0x[0-9a-fA-F]{64}$/.test(event.txHash ?? "");
+      const tx = isOnchainHash ? ` <a target="_blank" href="${ARCSCAN}/tx/${encodeURIComponent(event.txHash)}">tx</a>` : "";
       return `<tr title="${escapeHtml(event.resourceUrl)}">
         <td>${new Date(event.createdAt).toISOString().slice(11, 19)}</td>
         <td>${escapeHtml(event.vendorId)}</td>
