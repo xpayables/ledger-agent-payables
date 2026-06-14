@@ -27,7 +27,7 @@ A human signs spending authority once on a Ledger; the agent's separate hot wall
 The parties:
 
 - **Owner (Ledger):** signs the policy and exception approvals on the device; never signs individual payments.
-- **Agent (hot wallet):** makes paid requests and signs each nanopayment, only within the signed policy.
+- **Agent (hot wallet):** makes paid requests and signs each nanopayment, only within the signed policy. In this demo it's the throwaway buyer wallet from Quickstart step 1.
 - **Policy gateway (this project):** checks each request (cap, budget, allowlist, velocity, expiry), reserves budget, holds exceptions, logs events.
 - **Vendor (x402 seller):** returns an x402 `402` challenge, then delivers data once paid.
 - **Circle Gateway (Arc):** Circle's product; verifies the authorization and batch-settles USDC on Arc.
