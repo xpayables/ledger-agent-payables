@@ -81,13 +81,14 @@ npm test
 npm run demo:mock
 ```
 
-Run the local gateway monitor:
+Run the local gateway and unified browser console:
 
 ```bash
 npm run server:mock
+npm run console
 ```
 
-Open `http://127.0.0.1:4020/dashboard`.
+Open `http://127.0.0.1:5173/console/`. The console has an AI Chat tab for the deterministic demo agent and a Policy & Monitor tab for signing, approvals, budgets, exceptions, statements, and live decisions.
 
 Run a real Arc testnet nanopayment:
 
@@ -98,11 +99,19 @@ npm run arc:wallet:status
 npm run demo:arc
 ```
 
-The browser policy console is being ported next.
+To drive Arc testnet payments from the browser console:
+
+```bash
+npm run server:arc
+npm run console
+```
+
+The browser console works with the local mock gateway or the Arc testnet gateway, and supports Ledger WebHID in Chrome or Brave. The sample weather data source is free, but the demo seller wraps it behind an Arc testnet paid resource so the gateway can settle real testnet USDC before returning data.
 
 ## Project Layout
 
 ```text
+console/    browser policy console for policy and exception signatures
 core/       policy engine, gateway, signer, budget ledger, payment clients
 scripts/    mock and Arc scenario runners
 test/       policy, gateway, signing, budget, and exception tests
@@ -112,5 +121,5 @@ test/       policy, gateway, signing, budget, and exception tests
 
 * The mock gateway is deterministic and offline.
 * The Arc rail uses public testnet funds only.
-* The browser policy console is being ported next.
+* The browser policy console supports Ledger WebHID and local test signing.
 * This is not production software. It uses demo wallets and in-memory state; do not use with real funds.
