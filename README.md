@@ -57,6 +57,48 @@ If any control step fails, the gateway blocks the payment before money moves.
 
 The same policy gateway can run against a local mock rail for offline development and Circle Arc testnet for real gas-free USDC nanopayments.
 
+## Quickstart
+
+Install and run the test suite:
+
+```bash
+npm install
+npm test            # money-logic + gateway suite
+```
+
+### Run it on Circle Arc (testnet USDC)
+
+1. Create and fund a throwaway buyer wallet:
+
+```bash
+npm run arc:wallet          # prints the buyer address
+# fund that address at https://faucet.circle.com (select Arc Testnet)
+npm run arc:wallet:status   # confirm the USDC balance landed
+```
+
+2. Start the Arc gateway and the browser console in **two separate terminals**:
+
+```bash
+# terminal 1 — gateway (deposits into Circle's Gateway, then settles nanopayments)
+npm run server:arc
+
+# terminal 2 — browser console
+npm run console
+```
+
+3. Open `http://127.0.0.1:5173/console/`. Connect a Ledger (or a local test key), sign a policy, run the agent, approve exceptions, and watch budgets, statements, and live decisions — each settled payment links to its Arc transaction.
+
+### Optional: mock rail (no wallet, no funds)
+
+The same gateway and console run against a deterministic, offline mock rail — useful to evaluate the full control flow with zero setup, and as a fallback if the testnet is unavailable. Identical UI; payments are simulated (no on-chain transaction).
+
+```bash
+npm run server:mock     # use instead of server:arc — they share port 4020, run only one
+npm run console
+```
+
+Headless checks (optional, no browser): `npm run demo:mock` runs the full flow on the mock rail; `npm run demo:arc` settles one real Arc nanopayment from the command line.
+
 ## Demo
 
 _Screenshot coming soon._
@@ -70,43 +112,6 @@ The demo flow:
 5. Trigger an unknown-vendor or over-cap exception.
 6. Sign a one-shot exception approval on Ledger.
 7. Show the statement rollup.
-
-## Quickstart
-
-Current local flow:
-
-```bash
-npm install
-npm test
-npm run demo:mock
-```
-
-Run the local gateway and unified browser console:
-
-```bash
-npm run server:mock
-npm run console
-```
-
-Open `http://127.0.0.1:5173/console/`. The console has an AI Chat tab for the deterministic demo agent and a Policy & Monitor tab for signing, approvals, budgets, exceptions, statements, and live decisions.
-
-Run a real Arc testnet nanopayment:
-
-```bash
-npm run arc:wallet
-# fund the printed address at https://faucet.circle.com using Arc Testnet USDC
-npm run arc:wallet:status
-npm run demo:arc
-```
-
-To drive Arc testnet payments from the browser console:
-
-```bash
-npm run server:arc
-npm run console
-```
-
-The browser console works with the local mock gateway or the Arc testnet gateway, and supports Ledger WebHID in Chrome or Brave. The sample weather data source is free, but the demo seller wraps it behind an Arc testnet paid resource so the gateway can settle real testnet USDC before returning data.
 
 ## Project Layout
 
