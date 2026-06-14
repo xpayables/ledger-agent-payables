@@ -22,14 +22,24 @@ The fix: control moves up a level — a human signs the budget and rules once, a
 
 ## How It Works
 
-The owner signs authority on a Ledger (cold key); the agent spends from a separate hot wallet, bounded by that signed policy. The gateway checks every payment before money moves: it settles approved ones via Circle's Gateway, and holds anything over-cap or off-allowlist for a human. One guarded payment, end to end:
+The owner signs authority on a Ledger (cold key); the agent spends from a separate hot wallet, bounded by that signed policy. The policy gateway checks every payment before money moves: it settles approved ones through Circle's Gateway, and holds anything over-cap or off-allowlist for a human.
+
+The parties:
+
+- Owner (Ledger) — the human; signs the spending policy and exception approvals on a Ledger device, and never signs individual payments.
+- Agent (hot wallet) — the autonomous spender; makes paid requests and signs each nanopayment from a separate hot wallet, only within the signed policy.
+- Policy gateway — this project: the control plane that checks every request (cap, budget, allowlist, velocity, expiry), reserves budget, holds exceptions, and logs events.
+- Vendor (x402 seller) — the paid service; returns an x402 `402` challenge, then delivers data once paid.
+- Circle Gateway (Arc) — Circle's own product: the settlement layer that verifies the signed authorization and batch-settles USDC on Arc. This is Circle's infrastructure, not the policy gateway above.
+
+One guarded payment, end to end:
 
 ```mermaid
 %%{init: {'themeVariables': {'fontFamily': 'system-ui, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif'}}}%%
 sequenceDiagram
   participant O as Owner (Ledger)
   participant A as Agent (hot wallet)
-  participant G as Gateway
+  participant G as Policy gateway
   participant V as Vendor (x402 seller)
   participant C as Circle Gateway (Arc)
   O->>G: sign + activate policy (cap, budget, allowlist, expiry)
@@ -41,7 +51,7 @@ sequenceDiagram
   G->>V: retry with signed batched authorization
   V->>C: verify + settle (batched)
   C-->>V: settled - draws the Gateway deposit
-  V-->>G: 200 + data
+  V-->>G: 200 OK + data
   Note over G: mark settled, roll into statement
   G-->>A: approved + data
 ```
