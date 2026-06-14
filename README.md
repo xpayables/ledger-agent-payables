@@ -139,6 +139,10 @@ test/       policy, gateway, signing, budget, and exception tests
 
 ## Screenshots
 
+Policy signed on a Ledger and active, with the three outcomes in the statement:
+
+<img src="docs/screenshots/policy-active.png" width="850" alt="Ledger connected, policy active, and the statement showing approved, blocked, and approved outcomes">
+
 Policy console after an agent run (approved, blocked, held):
 
 <img src="docs/screenshots/01-agent-run.png" width="850" alt="Agent run showing approved, blocked, and held outcomes">
