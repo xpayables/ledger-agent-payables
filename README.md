@@ -106,13 +106,11 @@ Headless checks (optional, no browser): `npm run demo:mock` runs the full flow o
 
 The demo flow:
 
-1. Author a spend policy in the policy console.
-2. Sign the policy on a Ledger device.
-3. Let the agent make a gas-free USDC nanopayment on Arc testnet.
-4. Show the on-chain Gateway deposit and the agent's budget drawing down.
-5. Trigger an unknown-vendor or over-cap exception.
-6. Sign a one-shot exception approval on Ledger.
-7. Show the statement rollup.
+1. Connect your Ledger in the policy console.
+2. Author a spend policy, then sign and activate it on the device.
+3. Run the agent through three outcomes: a $0.001 call to an allowed vendor settles; a $0.10 package is blocked (over the $0.05 cap); a $0.01 quote from a new vendor is held for approval (off the allowlist).
+4. Approve the held payment on the Ledger.
+5. Review the statement, budget, and live decision log.
 
 ## Project Layout
 
