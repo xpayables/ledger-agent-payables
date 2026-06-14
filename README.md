@@ -89,18 +89,28 @@ npm run server:mock
 
 Open `http://127.0.0.1:4020/dashboard`.
 
-The browser policy console and Arc testnet rail are being ported next.
+Run a real Arc testnet nanopayment:
+
+```bash
+npm run arc:wallet
+# fund the printed address at https://faucet.circle.com using Arc Testnet USDC
+npm run arc:wallet:status
+npm run demo:arc
+```
+
+The browser policy console is being ported next.
 
 ## Project Layout
 
 ```text
 core/       policy engine, gateway, signer, budget ledger, payment clients
-scripts/    mock server and scripted demo scenario
+scripts/    mock and Arc scenario runners
 test/       policy, gateway, signing, budget, and exception tests
 ```
 
 ## Status
 
 * The mock gateway is deterministic and offline.
-* The Arc rail and browser policy console are being ported next; the Arc rail will use public testnet funds only.
+* The Arc rail uses public testnet funds only.
+* The browser policy console is being ported next.
 * This is not production software. It uses demo wallets and in-memory state; do not use with real funds.
