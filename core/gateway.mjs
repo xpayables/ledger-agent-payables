@@ -9,7 +9,6 @@ import { approvalMessage, approvalMessageHex } from "./policy-message.mjs";
 import { verifyApprovalSignature, verifyPolicySignature } from "./signer.mjs";
 import { createBudgetLedger } from "./budget.mjs";
 import { createVelocityWindow } from "./velocity.mjs";
-import { dashboardHtml } from "./dashboard.mjs";
 
 export function createGatewayServer({
   policy,
@@ -369,10 +368,6 @@ export function createGatewayServer({
       if (req.method === "POST" && pathname === "/policy") return handleSetPolicy(req, res);
       if (req.method === "GET" && pathname === "/statement") return jsonResponse(res, 200, { rows: statementRows() });
       if (req.method === "GET" && pathname === "/exceptions") return jsonResponse(res, 200, { exceptions });
-      if (req.method === "GET" && pathname === "/dashboard") {
-        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-        return res.end(dashboardHtml());
-      }
       if (req.method === "GET" && pathname === "/policy") {
         return jsonResponse(res, 200, {
           policy: policy ?? null,

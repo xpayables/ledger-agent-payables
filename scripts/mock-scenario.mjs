@@ -219,7 +219,7 @@ console.table({
 });
 
 if (process.argv.includes("--serve")) {
-  console.log(`\nDashboard: ${origin}/dashboard`);
+  console.log(`\nGateway listening on ${origin} — open the console to drive it.`);
 } else {
   server.close();
 }

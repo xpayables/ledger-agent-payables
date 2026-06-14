@@ -9,6 +9,8 @@
     "test": "node --test",
     "demo:mock": "node scripts/mock-scenario.mjs",
     "demo:arc": "node scripts/arc-scenario.mjs",
+    "console": "vite --host 127.0.0.1 --port 5173",
+    "server:arc": "node scripts/arc-server.mjs",
     "server:mock": "node scripts/mock-server.mjs",
     "arc:wallet": "node scripts/arc-wallet.mjs",
     "arc:wallet:status": "node scripts/arc-wallet-status.mjs"

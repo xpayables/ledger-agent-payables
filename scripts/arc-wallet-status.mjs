@@ -1,25 +1,11 @@
 // Print the Arc testnet buyer address, wallet balance, and Gateway balance.
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
 import { createPublicClient, erc20Abi, formatUnits, http as viemHttp } from "viem";
 import { arcTestnet } from "viem/chains";
 import { privateKeyToAccount } from "viem/accounts";
 
 import { getGatewayBalances } from "../core/arc-client.mjs";
-import { ARC_TESTNET_RPC, ARC_TESTNET_USDC } from "../core/arc-seller.mjs";
-
-function readEnv() {
-  const envPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", ".env");
-  const env = { ...process.env };
-  if (!fs.existsSync(envPath)) return env;
-  for (const line of fs.readFileSync(envPath, "utf8").split("\n")) {
-    const match = line.match(/^([A-Z0-9_]+)=(.*)$/);
-    if (match && !(match[1] in process.env)) env[match[1]] = match[2];
-  }
-  return env;
-}
+import { ARC_TESTNET_RPC, ARC_TESTNET_USDC } from "../core/arc-config.mjs";
+import { readEnv } from "./env.mjs";
 
 const env = readEnv();
 const buyerKey = env.ARC_BUYER_PRIVATE_KEY;

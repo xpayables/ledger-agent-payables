@@ -8,8 +8,8 @@ import {
   ARC_TESTNET,
   ARC_TESTNET_GATEWAY_WALLET,
   ARC_TESTNET_USDC,
-  createArcSeller,
-} from "../core/arc-seller.mjs";
+} from "../core/arc-config.mjs";
+import { createArcSeller } from "../core/arc-seller.mjs";
 import { usd } from "../core/money.mjs";
 
 function decodePaymentRequired(header) {

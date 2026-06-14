@@ -1,6 +1,6 @@
 // EIP-191 verification for Ledger-style signatures.
 import { verifyMessage, serializeSignature } from "viem";
-import { policyMessage, approvalMessage } from "./policy-message.mjs";
+import { policyMessage } from "./policy-message.mjs";
 
 function toHexSignature(signature) {
   if (typeof signature === "string") return signature;
@@ -25,8 +25,4 @@ export async function verifyLedgerSignedMessage(message, signed) {
 
 export async function verifyLedgerPolicySignature(policy, signed) {
   return verifyLedgerSignedMessage(policyMessage(policy), signed);
-}
-
-export async function verifyLedgerApprovalSignature(exception, signed) {
-  return verifyLedgerSignedMessage(approvalMessage(exception), signed);
 }

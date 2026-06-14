@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ledger Agent Payables</title>
+<link rel="icon" href="data:," />
+<style>
+  :root {
+    --page:#f6f8fb;
+    --surface:#ffffff;
+    --surface-soft:#f7f9fd;
+    --ink:#171a1f;
+    --muted:#717889;
+    --line:#e8edf5;
+    --line-strong:#d7dde7;
+    --blue:#5573df;
+    --blue-soft:#edf3ff;
+    --teal:#42c1ba;
+    --teal-soft:#e9fbf8;
+    --green:#27825c;
+    --green-soft:#eaf8f0;
+    --amber:#b57912;
+    --amber-soft:#fff4dc;
+    --red:#c45a58;
+    --red-soft:#fff0ef;
+    --radius:12px;
+    --radius-sm:8px;
+    --shadow:0 1px 2px rgba(16,24,40,.05), 0 10px 28px rgba(16,24,40,.07);
+    --ink-dark:#11151f;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0;
+    height:100vh;
+    overflow:hidden;
+    background:var(--page);
+    color:var(--ink);
+    font:14px/1.43 -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
+    letter-spacing:0;
+  }
+  button, input, select, textarea { font:inherit; letter-spacing:0; }
+  button { cursor:pointer; }
+  a { color:#3152b7; text-decoration:none; }
+  .app {
+    width:100%;
+    height:100vh;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:250px minmax(0, 1fr);
+    gap:12px;
+    padding:18px;
+  }
+  .sidebar {
+    height:calc(100vh - 36px);
+    overflow-y:auto;
+    background:linear-gradient(180deg, #f3f5fc 0%, #eceffa 100%);
+    border:1px solid #e3e8f4;
+    border-radius:var(--radius);
+    padding:20px 18px 16px;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .brand { display:block; }
+  .mark {
+    display:none;
+    width:34px;
+    height:34px;
+    border-radius:11px;
+    background:linear-gradient(135deg, #6f8ee9, #51c8be);
+    box-shadow:0 10px 22px rgba(85, 115, 223, .24);
+  }
+  .brand b { display:block; font-size:30px; line-height:1.05; color:var(--ink); letter-spacing:-.01em; }
+  .brand span { display:block; color:var(--muted); font-size:13px; margin-top:8px; }
+  .nav { display:grid; gap:10px; }
+  .nav button {
+    width:100%;
+    border:0;
+    border-radius:var(--radius-sm);
+    background:transparent;
+    color:var(--muted);
+    text-align:left;
+    padding:12px;
+    font-weight:700;
+  }
+  .nav button span,
+  .nav button small {
+    display:block;
+  }
+  .nav button span {
+    font-size:14px;
+    line-height:1.2;
+    color:var(--ink);
+  }
+  .nav button small {
+    margin-top:7px;
+    max-width:180px;
+    color:#969cab;
+    font-size:12px;
+    font-weight:400;
+    line-height:1.35;
+  }
+  .nav button.active {
+    color:#3152b7;
+    background:rgba(255,255,255,.9);
+    box-shadow:0 1px 2px rgba(16,24,40,.06);
+  }
+  .nav button.active span { color:#3152b7; }
+  .nav button.active small {
+    color:#687085;
+  }
+  .rail-status {
+    display:grid;
+    gap:8px;
+    padding-top:2px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .rail-status span {
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .rail-status span::before {
+    content:"";
+    width:7px;
+    height:7px;
+    flex:none;
+    border-radius:999px;
+    background:#c2c8d4;
+    box-shadow:0 0 0 2px rgba(194,200,212,.25);
+  }
+  .rail-status span.is-on::before {
+    background:var(--green);
+    box-shadow:0 0 0 2px rgba(39,130,90,.22);
+  }
+  .rail-status span.is-error::before {
+    background:var(--red);
+    box-shadow:0 0 0 2px rgba(196,90,88,.22);
+  }
+  .workspace {
+    min-width:0;
+    display:grid;
+    gap:14px;
+    height:calc(100vh - 36px);
+    overflow:auto;
+    padding:18px;
+    background:rgba(255,255,255,.6);
+    border:1px solid var(--line-strong);
+    border-radius:var(--radius);
+    scrollbar-gutter:stable;
+    scrollbar-color:#c8d2e2 transparent;
+  }
+  .view { min-width:0; }
+  .view[hidden] { display:none; }
+  .monitor-stack {
+    display:grid;
+    gap:12px;
+  }
+  .setup-grid {
+    display:grid;
+    grid-template-columns:minmax(0, 1.25fr) minmax(320px, .75fr);
+    gap:12px;
+    align-items:stretch;
+  }
+  .setup-grid > .panel {
+    height:100%;
+  }
+  .panel-subtitle {
+    margin:0 0 10px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .micro-list {
+    margin:0 0 10px;
+    padding-left:17px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .micro-list li { margin:2px 0; }
+  .stack { display:grid; gap:10px; min-width:0; }
+  .panel {
+    min-width:0;
+    overflow:hidden;
+    border-radius:var(--radius);
+    background:#fff;
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+  }
+  .panel-head {
+    min-height:43px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding:12px 16px 8px;
+    border-bottom:1px solid var(--line);
+  }
+  .panel h2 { margin:0; font-size:17px; line-height:1.18; font-weight:800; }
+  .panel-body { padding:8px 16px 14px; }
+  .soft-body { background:rgba(247,249,253,.7); }
+  label {
+    display:block;
+    margin:0 0 5px;
+    color:var(--muted);
+    font-size:12px;
+    font-weight:700;
+  }
+  input, select, textarea {
+    width:100%;
+    min-width:0;
+    border:0;
+    border-radius:var(--radius-sm);
+    background:var(--surface-soft);
+    color:var(--ink);
+    box-shadow:inset 0 0 0 1px rgba(205, 214, 227, .62);
+  }
+  input, select { height:36px; padding:7px 10px; }
+  textarea { min-height:84px; resize:vertical; padding:10px; }
+  input:focus, select:focus, textarea:focus {
+    outline:2px solid rgba(82, 115, 223, .18);
+    box-shadow:inset 0 0 0 1px rgba(82, 115, 223, .48);
+  }
+  .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .field-grid.policy-fields { grid-template-columns:repeat(3, minmax(0, 1fr)); }
+  .field { margin-bottom:10px; }
+  .btn {
+    border:0;
+    border-radius:var(--radius-sm);
+    min-height:36px;
+    padding:8px 12px;
+    background:#fff;
+    color:var(--ink);
+    border:1px solid var(--line);
+    box-shadow:none;
+  }
+  .btn.primary {
+    background:#4f6ef2;
+    color:#fff;
+    font-weight:700;
+    border-color:#4f6ef2;
+  }
+  .btn.accent {
+    background:#11a79d;
+    color:#fff;
+    font-weight:700;
+    border-color:#11a79d;
+  }
+  .btn.warning {
+    background:linear-gradient(135deg, #fff5dc, #fffaf0);
+    color:#8a5a0f;
+    font-weight:700;
+  }
+  .btn.danger {
+    background:linear-gradient(135deg, #fff0ef, #fff8f7);
+    color:#9a3836;
+    font-weight:700;
+  }
+  .btn:disabled, .is-disabled { opacity:.48; pointer-events:none; }
+  .policy-locked input,
+  .policy-locked select {
+    background:#eef2f7;
+    color:#5f6675;
+  }
+  .btn-row { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; }
+  .action-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .note, .status { color:var(--muted); font-size:12px; }
+  .status { min-height:18px; margin-top:8px; }
+  .mono {
+    font-family:"SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size:12px;
+    overflow-wrap:anywhere;
+  }
+  .policy-chip {
+    color:var(--muted);
+    background:#eef2f7;
+    border-radius:999px;
+    padding:4px 9px;
+    font-size:12px;
+    font-weight:700;
+  }
+  .policy-chip.is-active { color:var(--green); background:var(--green-soft); }
+  .policy-chip.is-busy { color:var(--amber); background:var(--amber-soft); }
+  .kv { display:grid; gap:0; }
+  .kv div {
+    display:grid;
+    grid-template-columns:132px minmax(0, 1fr);
+    gap:12px;
+    padding:6px 0;
+    border-bottom:1px solid #edf1f6;
+  }
+  .kv div:last-child { border-bottom:0; }
+  .kv span:first-child { color:var(--muted); }
+  .scroll-window {
+    overflow:auto;
+    scrollbar-gutter:stable;
+    scrollbar-color:#c8d2e2 transparent;
+  }
+  .policy-scroll { max-height:148px; }
+  .form-scroll { max-height:160px; }
+  .table-scroll { max-height:166px; padding-top:0; scrollbar-gutter:auto; }
+  .events-scroll { max-height:218px; padding-top:0; scrollbar-gutter:auto; }
+  .panel-body.table-scroll,
+  .panel-body.events-scroll {
+    padding-left:0;
+    padding-right:0;
+  }
+  .bar {
+    height:8px;
+    background:#eef2f7;
+    border-radius:999px;
+    overflow:hidden;
+    box-shadow:inset 0 0 0 1px rgba(199, 209, 224, .55);
+  }
+  .bar i {
+    display:block;
+    height:100%;
+    border-radius:999px;
+    background:linear-gradient(90deg, #6f8ee9, #57c9bf);
+  }
+  .bar-row { margin-bottom:9px; }
+  .bar-meta {
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:4px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .bar-title { color:var(--muted); font-weight:700; font-size:13px; }
+  table {
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    font-size:13px;
+    table-layout:fixed;
+  }
+  th {
+    position:sticky;
+    top:0;
+    z-index:3;
+    text-align:left;
+    color:var(--muted);
+    background:var(--surface-soft);
+    font-weight:700;
+    padding:7px 9px;
+    box-shadow:0 1px 0 var(--line);
+    white-space:nowrap;
+  }
+  td {
+    padding:7px 9px;
+    border-bottom:1px solid #edf1f6;
+    vertical-align:middle;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    background:rgba(255,255,255,.72);
+  }
+  tr:last-child td { border-bottom:0; }
+  .pill {
+    display:inline-flex;
+    align-items:center;
+    min-height:22px;
+    padding:2px 9px;
+    border-radius:999px;
+    border:0;
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .approved { color:var(--green); background:var(--green-soft); }
+  .needs_approval { color:var(--amber); background:var(--amber-soft); }
+  .blocked { color:var(--red); background:var(--red-soft); }
+  .pending { color:var(--amber); background:var(--amber-soft); }
+  .chat-layout {
+    display:block;
+  }
+  .agent-panel {
+    height:calc(100vh - 72px);
+    min-height:360px;
+    display:flex;
+    flex-direction:column;
+  }
+  .chat-log {
+    height:auto;
+    min-height:330px;
+    flex:1;
+    overflow:auto;
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .bubble {
+    max-width:78%;
+    border-radius:var(--radius);
+    padding:10px 12px;
+    background:var(--surface-soft);
+    color:var(--ink);
+  }
+  .bubble.agent { align-self:flex-start; background:#fff; border:1px solid var(--line); }
+  .bubble.gateway { align-self:flex-end; background:linear-gradient(135deg, #eaf8f0, #e8f8f6); }
+  .bubble.user { align-self:flex-end; background:linear-gradient(135deg, #edf3ff, #f1f3ff); }
+  .bubble b { display:block; margin-bottom:2px; font-size:12px; color:var(--muted); }
+  .chat-input {
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) auto;
+    gap:8px;
+    padding:12px 16px 16px;
+  }
+  #events-table th:nth-child(1), #events-table td:nth-child(1) { width:82px; }
+  #events-table th:nth-child(2), #events-table td:nth-child(2) { width:120px; }
+  #events-table th:nth-child(3), #events-table td:nth-child(3) { width:auto; }
+  #events-table th:nth-child(4), #events-table td:nth-child(4) { width:78px; }
+  #events-table th:nth-child(5), #events-table td:nth-child(5) { width:112px; }
+  #events-table th:nth-child(6), #events-table td:nth-child(6) { width:150px; }
+  #events-table th:nth-child(7), #events-table td:nth-child(7) { width:160px; }
+  @media (max-width: 1040px) {
+    .app { grid-template-columns:1fr; padding:14px; }
+    .sidebar { position:static; height:auto; }
+    .setup-grid { grid-template-columns:1fr; }
+    body { height:auto; overflow:auto; }
+    .app { height:auto; }
+    .workspace { height:auto; overflow:visible; }
+    .agent-panel { height:auto; }
+  }
+  @media (max-width: 720px) {
+    .field-grid,
+    .field-grid.policy-fields,
+    .btn-row {
+      grid-template-columns:1fr;
+    }
+    .bubble { max-width:100%; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"></div>
+      <div>
+        <b>Ledger<br />Agent<br />Payables</b>
+        <span>Arc testnet USDC</span>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Main">
+      <button class="active" data-tab="monitor">
+        <span>Policy &amp; Monitor</span>
+        <small>Set spend rules, sign the policy, then review budget, statements, exceptions, and live decisions.</small>
+      </button>
+      <button data-tab="agent">
+        <span>Agent Research</span>
+        <small>Run the agent through the signed policy. Outcomes appear in the monitor.</small>
+      </button>
+    </nav>
+
+    <div class="rail-status" aria-label="Session status">
+      <span id="owner-chip">Signer not connected</span>
+      <span id="policy-chip">No active policy</span>
+      <span id="gateway-status">Gateway connecting…</span>
+      <span id="refresh-chip" class="is-on">Auto-refresh 1.5s</span>
+    </div>
+  </aside>
+
+  <main class="workspace">
+    <section class="view" id="agent-view" hidden>
+      <div class="chat-layout">
+        <section class="panel agent-panel">
+          <div class="panel-head">
+            <h2>Agent Research</h2>
+            <span class="policy-chip" id="agent-state">waiting</span>
+          </div>
+          <div class="chat-log" id="chat-log"></div>
+          <div class="chat-input">
+            <input id="chat-prompt" value="Research current weather, then check whether a market quote is allowed." />
+            <button class="btn primary" id="run-agent">Run agent</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="view" id="monitor-view">
+      <div class="monitor-stack">
+        <div class="setup-grid">
+          <section class="panel is-disabled" id="policy-panel">
+            <div class="panel-head">
+              <h2>Configure Spend Policy</h2>
+              <span class="policy-chip" id="policy-form-state">Draft</span>
+            </div>
+            <div class="panel-body">
+              <div class="scroll-window form-scroll">
+                <div class="field-grid policy-fields">
+                  <div class="field">
+                    <label for="f-agent">Agent ID</label>
+                    <input id="f-agent" value="research-agent" />
+                  </div>
+                  <div class="field">
+                    <label for="f-vendors">Allowed vendors</label>
+                    <input id="f-vendors" value="weather" />
+                  </div>
+                  <div class="field">
+                    <label for="f-cap">Per-payment cap</label>
+                    <input id="f-cap" value="0.05" />
+                  </div>
+                  <div class="field">
+                    <label for="f-budget">Daily budget</label>
+                    <input id="f-budget" value="1.00" />
+                  </div>
+                  <div class="field">
+                    <label for="f-velocity">Requests/min</label>
+                    <input id="f-velocity" value="60" />
+                  </div>
+                  <div class="field">
+                    <label for="f-expiry">Expires in hours</label>
+                    <input id="f-expiry" value="24" />
+                  </div>
+                </div>
+              </div>
+              <div class="action-row">
+                <button class="btn accent" id="sign-policy">Sign and activate policy</button>
+                <button class="btn" id="edit-policy" hidden>Edit policy</button>
+              </div>
+              <div class="status" id="policy-status"></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Sign Policy</h2>
+              <span class="policy-chip" id="signer-state">disconnected</span>
+            </div>
+            <div class="panel-body">
+              <ul class="micro-list">
+                <li>Ledger: use for the real demo.</li>
+                <li>Local key: quick browser test.</li>
+              </ul>
+              <div class="field">
+                <label for="signer-mode">Signer</label>
+                <select id="signer-mode">
+                  <option value="ledger">Ledger device</option>
+                  <option value="local">Local test key</option>
+                </select>
+              </div>
+              <div class="action-row">
+                <button class="btn primary" id="connect">Connect signer</button>
+                <span class="note mono" id="owner-address"></span>
+              </div>
+              <div class="status" id="connect-status"></div>
+            </div>
+          </section>
+        </div>
+
+          <section class="panel">
+            <div class="panel-head"><h2>Statement</h2></div>
+            <div class="panel-body" id="statement-bars"></div>
+            <div class="panel-body scroll-window table-scroll">
+              <table id="statement-table"></table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Exceptions</h2>
+              <span class="note" id="approve-status"></span>
+            </div>
+            <div class="panel-body scroll-window table-scroll">
+              <table id="exceptions-table"></table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><h2>Budget</h2></div>
+            <div class="panel-body" id="budget"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><h2>Live Decisions</h2></div>
+            <div class="panel-body scroll-window events-scroll">
+              <table id="events-table"></table>
+            </div>
+          </section>
+      </div>
+    </section>
+  </main>
+</div>
+<script type="module" src="./main.js"></script>
+</body>
+</html>

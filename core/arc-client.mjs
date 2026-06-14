@@ -2,7 +2,7 @@
 import { decodePaymentRequiredHeader } from "@x402/core/http";
 import { GatewayClient } from "@circle-fin/x402-batching/client";
 
-import { ARC_TESTNET } from "./arc-seller.mjs";
+import { ARC_TESTNET } from "./arc-config.mjs";
 
 export function createArcResourceClient({ buyerKey, vendorRegistry }) {
   const gateway = new GatewayClient({ chain: "arcTestnet", privateKey: buyerKey });

@@ -1,4 +1,4 @@
-// Long-running mock server for local dashboard and console work. No real funds move.
+// Long-running mock server for local console work. No real funds move.
 import { createGatewayServer } from "../core/gateway.mjs";
 import { usd } from "../core/money.mjs";
 
