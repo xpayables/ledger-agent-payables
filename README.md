@@ -22,43 +22,22 @@ The fix: control moves up a level — a human signs the budget and rules once, a
 
 ## How It Works
 
-The owner signs authority on a Ledger (cold key); the agent spends from a separate hot wallet, bounded by the signed policy. The gateway enforces every payment before money moves.
-
-```mermaid
-%%{init: {'themeVariables': {'fontFamily': 'system-ui, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif'}}}%%
-flowchart TB
-  Ledger["Ledger<br/>cold authority key"]
-  Console["Console<br/>sign policy, approve exceptions"]
-  Gateway["Gateway<br/>policy engine + event store"]
-  Hot["Agent hot wallet<br/>spends within bounds"]
-  Circle["Circle Gateway on Arc<br/>verify + batch-settle USDC"]
-  Vendors["x402 sellers"]
-  Statement["Statement<br/>budgets, exceptions, audit"]
-
-  Ledger -->|signs policy + approvals| Console
-  Console -->|activate, verified signature| Gateway
-  Hot -->|guarded request| Gateway
-  Gateway -->|cap / budget / velocity / allowlist| Gateway
-  Gateway -->|approved, settle| Circle
-  Circle -->|USDC on Arc| Vendors
-  Vendors -->|data| Gateway
-  Gateway --> Statement
-```
-
-Each guarded payment follows a fail-closed critical path:
+The owner signs authority on a Ledger (cold key); the agent spends from a separate hot wallet, bounded by that signed policy. The gateway checks every payment before money moves: it settles approved ones via Circle's Gateway, and holds anything over-cap or off-allowlist for a human. One guarded payment, end to end:
 
 ```mermaid
 %%{init: {'themeVariables': {'fontFamily': 'system-ui, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif'}}}%%
 sequenceDiagram
+  participant O as Owner (Ledger)
   participant A as Agent (hot wallet)
   participant G as Gateway
   participant V as Vendor (x402 seller)
   participant C as Circle Gateway (Arc)
+  O->>G: sign + activate policy (cap, budget, allowlist, expiry)
   A->>G: guarded request
   G->>V: read 402 challenge
-  V-->>G: 402 - GatewayWalletBatched, price
-  Note over G: policy check - expiry, agent, velocity, allowlist, cap
-  Note over G: reserve run + daily budget atomically, record event
+  V-->>G: 402 - price, GatewayWalletBatched
+  Note over G: check policy - expiry, agent, velocity, allowlist, cap
+  Note over G: reserve budget atomically, record event
   G->>V: retry with signed batched authorization
   V->>C: verify + settle (batched)
   C-->>V: settled - draws the Gateway deposit
