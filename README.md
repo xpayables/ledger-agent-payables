@@ -25,7 +25,8 @@ The fix: control moves up a level — a human signs the budget and rules once, a
 The owner signs authority on a Ledger (cold key); the agent spends from a separate hot wallet, bounded by the signed policy. The gateway enforces every payment before money moves.
 
 ```mermaid
-flowchart LR
+%%{init: {'themeVariables': {'fontFamily': 'system-ui, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif'}}}%%
+flowchart TB
   Ledger["Ledger<br/>cold authority key"]
   Console["Console<br/>sign policy, approve exceptions"]
   Gateway["Gateway<br/>policy engine + event store"]
@@ -47,6 +48,7 @@ flowchart LR
 Each guarded payment follows a fail-closed critical path:
 
 ```mermaid
+%%{init: {'themeVariables': {'fontFamily': 'system-ui, -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif'}}}%%
 sequenceDiagram
   participant A as Agent (hot wallet)
   participant G as Gateway
